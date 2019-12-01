@@ -126,11 +126,33 @@ public class Planet : Body
 		return "Planet {\n\tmass = " + Math.Round(this.mass/Constants.earth.mass, 3).ToString() + 
 				" M_earth\n\tradius = " + Math.Round(this.radius/Constants.earth.radius, 2).ToString() + 
 				" R_earth\n\ttemperature = " + this.Temperature().ToString() + 
-				" K\n}";
+				" K\n\tESI = " + Math.Round(this.ESI(), 2).ToString() + 
+				"\n}";
 	}
 	public ushort Temperature(){
 		Star star = this.orbit.star;
 		return (ushort)(star.temperature * Math.Pow(1-this.albedo, 0.25) * Math.Sqrt(star.radius/2/this.orbit.sma));
+	}
+	public double VE(){
+		return Math.Sqrt(2*this.Mu()/this.radius);
+	}
+	public double Volume(){
+		return Math.PI * 4/3 * Math.Pow(this.radius, 3);
+	}
+	public double Density(){
+		return this.mass / this.Volume();
+	}
+	public double ESI(){
+		Planet e = Constants.earth;
+		double esi1 = 1 - Math.Abs((this.radius-e.radius)/(this.radius+e.radius));
+		double esi2 = 1 - Math.Abs((this.Density()-e.Density())/(this.Density()+e.Density()));
+		double esi3 = 1 - Math.Abs((this.VE()-e.VE())/(this.VE()+e.VE()));
+		double esi4 = 1 - Math.Abs((this.Temperature()-e.Temperature())/(this.Temperature()+e.Temperature()));
+		Console.WriteLine(esi1);
+		Console.WriteLine(esi2);
+		Console.WriteLine(esi3);
+		Console.WriteLine(esi4);
+		return Math.Pow(esi1, 0.57/4) * Math.Pow(esi2, 1.07/4) * Math.Pow(esi3, 0.7/4) * Math.Pow(esi4, 5.58/4);
 	}
 }
 public class Orbit
