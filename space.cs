@@ -125,8 +125,12 @@ public class Planet : Body
 	public override string ToString(){
 		return "Planet {\n\tmass = " + Math.Round(this.mass/Constants.earth.mass, 3).ToString() + 
 				" M_earth\n\tradius = " + Math.Round(this.radius/Constants.earth.radius, 2).ToString() + 
-				" R_earth\n\talbedo = " + Math.Round(this.albedo, 3).ToString() + 
-				"\n}";
+				" R_earth\n\ttemperature = " + this.Temperature().ToString() + 
+				" K\n}";
+	}
+	public ushort Temperature(){
+		Star star = this.orbit.star;
+		return (ushort)(star.temperature * Math.Pow(1-this.albedo, 0.25) * Math.Sqrt(star.radius/2/this.orbit.sma));
 	}
 }
 public class Orbit
