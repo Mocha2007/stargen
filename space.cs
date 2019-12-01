@@ -4,8 +4,6 @@ using System.IO;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
-// for pictures
-// using System.Drawing.Image;
 
 public class Program
 {
@@ -16,7 +14,6 @@ public class Program
 		Console.CursorVisible = false;
 		Application.EnableVisualStyles();
 		Application.Run(new Interface());
-		// Console.ReadKey();
 	}
 	// rng
 	static double RandAngle(){
@@ -81,6 +78,7 @@ public class Constants
 {
 	public static float G = 6.6743e-11F;
 	public static ulong au = 149597870700;
+	public static uint year = 31556952;
 	public static Star sun = new Star(1.9885e30, 6.957e8, 3.828e26, 5778);
 	static Orbit mercuryOrbit = new Orbit(sun, 0.50831, 0.20563, 3.05077, 5.790905e10);
 	public static Planet mercury = new Planet(3.3011e23, 2.4397e6, 0.088, mercuryOrbit);
@@ -237,7 +235,7 @@ public class StarSystem
 	public double MaxSMA(){
 		return this.secondaries[this.secondaries.Length-1].orbit.Apoapsis();
 	}
-	public Bitmap Map(ushort size){
+	public Bitmap Map(double time, ushort size){
 		byte orbitResolution = 64;
 		Bitmap bitmap = new Bitmap(size, size);
 		Graphics g = Graphics.FromImage(bitmap);
@@ -277,7 +275,7 @@ public class StarSystem
 		Color planetColor = Color.White;
 		Brush planetBrush = new SolidBrush(planetColor);
 		for (byte i=0; i < this.secondaries.Length; i++){
-			double[] absCoords = this.secondaries[i].orbit.Cartesian(0);
+			double[] absCoords = this.secondaries[i].orbit.Cartesian(time);
 			double absx = absCoords[0];
 			double absy = absCoords[1];
 			double a = this.MaxSMA();
@@ -291,10 +289,11 @@ public class StarSystem
 }
 public class Interface : Form
 {
+	ulong time = 0;
 	public Button button1, planetButton, printButton;
 	public Label planetSelectorLabel;
 	public NumericUpDown planetSelector;
-	public PictureBox systemMap;
+	public static PictureBox systemMap;
 	public TableLayoutPanel interfaceTable, overTable;
 	public Interface(){
 		this.Size = new Size(375, 505); // width, height
@@ -337,11 +336,16 @@ public class Interface : Form
 		interfaceTable.Controls.Add(printButton, 2, 1);
 		// map
 		systemMap = new PictureBox();
-		systemMap.Image = Program.system.Map(350);
+		systemMap.Image = Program.system.Map(0, 350);
 		systemMap.Size = new Size(350, 350);
 		overTable.Controls.Add(systemMap, 0, 1);
-		// interfaceTable.SetColumnSpan(interfaceTable, 3);
-		// interfaceTable.Columns[0].Width = 100;
+		// main simulation
+		// https://stackoverflow.com/a/23137100/2579798
+		byte fps = 30;
+		Timer timer = new Timer();
+		timer.Interval = 1000 / fps;
+		timer.Tick += new EventHandler(Tick);
+		timer.Start();
 	}
 	private void button1_Click(object sender, EventArgs e){
 		MessageBox.Show(Program.system.primary.ToString(), "Star");
@@ -351,7 +355,11 @@ public class Interface : Form
 		MessageBox.Show(Program.system.secondaries[pid].ToString(), "Planet " + pid.ToString());
 	}
 	private void printButtonClick(object sender, EventArgs e){
-		Program.system.Map(1200).Save(@"export.png", System.Drawing.Imaging.ImageFormat.Png);
+		Program.system.Map(0, 1200).Save(@"export.png", System.Drawing.Imaging.ImageFormat.Png);
 		File.WriteAllText("export.txt", Program.system.ToString());
+	}
+	private void Tick(object sender, EventArgs e){
+		systemMap.Image = Program.system.Map(time, 350);
+		time += 10000;
 	}
 }
