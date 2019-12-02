@@ -210,10 +210,14 @@ public class Star : Body
 				" M_sun\n\tradius = " + Math.Round(this.radius/Constants.sun.radius, 2).ToString() + 
 				" R_sun\n\tluminosity = " + Math.Round(this.luminosity/Constants.sun.luminosity, 5).ToString() + 
 				" L_sun\n\ttemperature = " + this.temperature.ToString() + 
-				" K\n}";
+				" K\n\tlifespan = " + Math.Round(this.Lifespan() / (1e6 * Constants.year)).ToString() + 
+				" Myr\n}";
 	}
 	public double FrostLine(){
 		return 3*Constants.au * Math.Sqrt(this.luminosity / Constants.sun.luminosity);
+	}
+	public double Lifespan(){
+		return 3e17*Math.Pow(this.mass/Constants.sun.mass, -2.5162);
 	}
 }
 public class StarSystem
