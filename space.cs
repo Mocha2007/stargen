@@ -6,7 +6,6 @@ using System.Drawing;
 using System.Windows.Forms;
 // for enumeration
 using System.Collections;
-using System.Collections.Generic;
 
 public class Program
 {
@@ -223,13 +222,18 @@ public class Star : Body
 		return 3e17*Math.Pow(this.mass/Constants.sun.mass, -2.5162);
 	}
 }
-public class StarSystem : IEnumerable<Planet>
+public class StarSystem : IEnumerable
 {
 	public Star primary;
 	public Planet[] secondaries;
 	public StarSystem(Star primary, Planet[] secondaries){
 		this.primary = primary;
 		this.secondaries = secondaries;
+		/*
+		foreach (Planet p in this){
+			Console.WriteLine(p.ToString());
+		}
+		*/
 	}
 	public override string ToString(){
 		string o = "System {\n\t" + this.primary.ToString();
@@ -241,11 +245,9 @@ public class StarSystem : IEnumerable<Planet>
 	}
 	#region Implementation of IEnumerable
 	// https://stackoverflow.com/a/13135465/2579798
-	public IEnumerator<Planet> GetEnumerator(){
+	// https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/concepts/iterators
+	public IEnumerator GetEnumerator(){
 		return this.secondaries.GetEnumerator();
-	}
-	IEnumerator IEnumerable.GetEnumerator(){
-		return GetEnumerator();
 	}
 	#endregion
 	public double MaxSMA(){
