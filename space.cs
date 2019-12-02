@@ -110,12 +110,14 @@ public class Body
 	}
 	public double mu{
 		get { return Constants.G * this.mass; }
+		// set { this.mass = value / Constants.G; }
 	}
 	public double ve{
 		get { return Math.Sqrt(2*this.mu/this.radius); }
 	}
 	public double volume{
 		get { return Math.PI * 4/3 * Math.Pow(this.radius, 3); }
+		// set { this.radius = Math.Pow(value / Math.PI * 3/4, (double)1/3); }
 	}
 	public double density{
 		get { return this.mass / this.volume; }
@@ -373,7 +375,8 @@ class Interface : Form
 	}
 	private void planetButtonClick(object sender, EventArgs e){
 		byte pid = (byte)planetSelector.Value;
-		MessageBox.Show(Program.system.secondaries[pid].ToString(), "Planet " + pid.ToString());
+		// MessageBox.Show(Program.system.secondaries[pid].ToString(), "Planet " + pid.ToString());
+		new PlanetInfo(Program.system.secondaries[pid]).Show();
 	}
 	private void printButtonClick(object sender, EventArgs e){
 		Program.system.Map(0, 1200).Save(@"export.png", System.Drawing.Imaging.ImageFormat.Png);
@@ -382,5 +385,30 @@ class Interface : Form
 	private void Tick(object sender, EventArgs e){
 		systemMap.Image = Program.system.Map(time, 350);
 		time += (ulong)(Program.system.maxP/(60*fps)); // fixme
+	}
+}
+class PlanetInfo : Form
+{
+	static Label planetLabel, planetData;
+	static TableLayoutPanel overTable;
+	public PlanetInfo(Planet p){
+		this.Size = new Size(150, 150); // width, height
+		string name = "Planet " + Array.IndexOf(Program.system.secondaries, p).ToString();
+		this.Text = name;
+		this.AutoSize = true;
+		// overtable
+		overTable = new TableLayoutPanel();
+		overTable.Dock = DockStyle.Fill;
+		overTable.CellBorderStyle = TableLayoutPanelCellBorderStyle.Single;
+		this.Controls.Add(overTable);
+		// planet label
+		planetLabel = new Label();
+		planetLabel.Text = name;
+		overTable.Controls.Add(planetLabel, 0, 0);
+		// planet data
+		planetData = new Label();
+		planetData.Text = p.ToString();
+		planetData.Size = new Size(150, 150);
+		overTable.Controls.Add(planetData, 0, 1);
 	}
 }
