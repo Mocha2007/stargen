@@ -237,9 +237,9 @@ public class StarSystem : IEnumerable
 	}
 	public override string ToString(){
 		string o = "System {\n\t" + this.primary.ToString();
-		for (byte i=0; i < this.secondaries.Length; i++){
-			o += "\n" + this.secondaries[i].ToString();
-			o += "\n" + this.secondaries[i].orbit.ToString();
+		foreach (Planet p in this){
+			o += "\n" + p.ToString();
+			o += "\n" + p.orbit.ToString();
 		}
 		return o + "\n}";
 	}
@@ -295,8 +295,8 @@ public class StarSystem : IEnumerable
 		// print planets!
 		Color planetColor = Color.White;
 		Brush planetBrush = new SolidBrush(planetColor);
-		for (byte i=0; i < this.secondaries.Length; i++){
-			double[] absCoords = this.secondaries[i].orbit.Cartesian(time);
+		foreach (Planet p in this){
+			double[] absCoords = p.orbit.Cartesian(time);
 			double absx = absCoords[0];
 			double absy = absCoords[1];
 			double a = this.MaxSMA();
