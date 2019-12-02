@@ -56,7 +56,7 @@ public class Program
 		double ecc = Uniform(0, 0.21);
 		double man = RandAngle();
 		Orbit orbit = new Orbit(primary, aop, ecc, man, sma);
-		if (primary.FrostLine() < sma){ //giant
+		if (primary.frostLine < sma){ //giant
 			mass = LogUniform(10*Constants.earth.mass, 10*Constants.jupiter.mass);
 			if (2e26 < mass){ // gas giant
 				density = Uniform(600, 1400);
@@ -108,8 +108,17 @@ public class Body
 	public override string ToString(){
 		return "Body {\n\tmass = " + this.mass.ToString() + " kg\n\tradius = " + (this.radius/1000).ToString() + " km\n}";
 	}
-	public double Mu(){
-		return Constants.G * this.mass;
+	public double mu{
+		get { return Constants.G * this.mass; }
+	}
+	public double ve{
+		get { return Math.Sqrt(2*this.mu/this.radius); }
+	}
+	public double volume{
+		get { return Math.PI * 4/3 * Math.Pow(this.radius, 3); }
+	}
+	public double density{
+		get { return this.mass / this.volume; }
 	}
 }
 public class Planet : Body
@@ -125,34 +134,25 @@ public class Planet : Body
 	public override string ToString(){
 		return "Planet {\n\tmass = " + Math.Round(this.mass/Constants.earth.mass, 3).ToString() + 
 				" M_earth\n\tradius = " + Math.Round(this.radius/Constants.earth.radius, 2).ToString() + 
-				" R_earth\n\ttemperature = " + this.Temperature().ToString() + 
-				" K\n\tESI = " + Math.Round(this.ESI(), 2).ToString() + 
+				" R_earth\n\ttemperature = " + this.temperature.ToString() + 
+				" K\n\tESI = " + Math.Round(this.esi, 2).ToString() + 
 				"\n}";
 	}
-	public ushort Temperature(){
-		Star star = this.orbit.star;
-		return (ushort)(star.temperature * Math.Pow(1-this.albedo, 0.25) * Math.Sqrt(star.radius/2/this.orbit.sma));
+	public ushort temperature{
+		get {
+			Star star = this.orbit.star;
+			return (ushort)(star.temperature * Math.Pow(1-this.albedo, 0.25) * Math.Sqrt(star.radius/2/this.orbit.sma));
+		}
 	}
-	public double VE(){
-		return Math.Sqrt(2*this.Mu()/this.radius);
-	}
-	public double Volume(){
-		return Math.PI * 4/3 * Math.Pow(this.radius, 3);
-	}
-	public double Density(){
-		return this.mass / this.Volume();
-	}
-	public double ESI(){
-		Planet e = Constants.earth;
-		double esi1 = 1 - Math.Abs((this.radius-e.radius)/(this.radius+e.radius));
-		double esi2 = 1 - Math.Abs((this.Density()-e.Density())/(this.Density()+e.Density()));
-		double esi3 = 1 - Math.Abs((this.VE()-e.VE())/(this.VE()+e.VE()));
-		double esi4 = 1 - Math.Abs((this.Temperature()-e.Temperature())/(this.Temperature()+e.Temperature()));
-		Console.WriteLine(esi1);
-		Console.WriteLine(esi2);
-		Console.WriteLine(esi3);
-		Console.WriteLine(esi4);
-		return Math.Pow(esi1, 0.57/4) * Math.Pow(esi2, 1.07/4) * Math.Pow(esi3, 0.7/4) * Math.Pow(esi4, 5.58/4);
+	public double esi{
+		get {
+			Planet e = Constants.earth;
+			double esi1 = 1 - Math.Abs((this.radius-e.radius)/(this.radius+e.radius));
+			double esi2 = 1 - Math.Abs((this.density-e.density)/(this.density+e.density));
+			double esi3 = 1 - Math.Abs((this.ve-e.ve)/(this.ve+e.ve));
+			double esi4 = 1 - Math.Abs((this.temperature-e.temperature)/(this.temperature+e.temperature));
+			return Math.Pow(esi1, 0.57/4) * Math.Pow(esi2, 1.07/4) * Math.Pow(esi3, 0.7/4) * Math.Pow(esi4, 5.58/4);
+		}
 	}
 }
 public class Orbit
@@ -169,8 +169,8 @@ public class Orbit
 	public override string ToString(){
 		return "Orbit {\n\tsma " + (this.sma / Constants.au).ToString() + " au\n}";
 	}
-	public double Apoapsis(){
-		return (1+this.ecc)*this.sma; 
+	public double apoapsis{
+		get { return (1+this.ecc)*this.sma; }
 	}
 	public double[] Cartesian(double time){ // confirmed to work 100%
 		double E = this.EccentricAnomaly(time);
@@ -180,7 +180,7 @@ public class Orbit
 	}
 	public double EccentricAnomaly(double time){ // confirmed to work 100%
 		float tol = 1e-10F;
-		double M = (this.man + 2*Math.PI*time/this.Period()) % (2*Math.PI);
+		double M = (this.man + 2*Math.PI*time/this.period) % (2*Math.PI);
 		double E = M;
 		double oldE = E + 2*tol;
 		while (tol < Math.Abs(E-oldE)){
@@ -189,8 +189,8 @@ public class Orbit
 		}
 		return E;
 	}
-	public double Period(){
-		return 2 * Math.PI * Math.Sqrt(Math.Pow(this.sma, 3) / this.star.Mu());
+	public double period{
+		get { return 2 * Math.PI * Math.Sqrt(Math.Pow(this.sma, 3) / this.star.mu); }
 	}
 	public double TrueAnomaly(double time){
 		double E = this.EccentricAnomaly(time);
@@ -212,14 +212,14 @@ public class Star : Body
 				" M_sun\n\tradius = " + Math.Round(this.radius/Constants.sun.radius, 2).ToString() + 
 				" R_sun\n\tluminosity = " + Math.Round(this.luminosity/Constants.sun.luminosity, 5).ToString() + 
 				" L_sun\n\ttemperature = " + this.temperature.ToString() + 
-				" K\n\tlifespan = " + Math.Round(this.Lifespan() / (1e6 * Constants.year)).ToString() + 
+				" K\n\tlifespan = " + Math.Round(this.lifespan / (1e6 * Constants.year)).ToString() + 
 				" Myr\n}";
 	}
-	public double FrostLine(){
-		return 3*Constants.au * Math.Sqrt(this.luminosity / Constants.sun.luminosity);
+	public double frostLine{
+		get { return 3*Constants.au * Math.Sqrt(this.luminosity / Constants.sun.luminosity); }
 	}
-	public double Lifespan(){
-		return 3e17*Math.Pow(this.mass/Constants.sun.mass, -2.5162);
+	public double lifespan{
+		get { return 3e17*Math.Pow(this.mass/Constants.sun.mass, -2.5162); }
 	}
 }
 public class StarSystem : IEnumerable
@@ -250,11 +250,11 @@ public class StarSystem : IEnumerable
 		return this.secondaries.GetEnumerator();
 	}
 	#endregion
-	public double MaxSMA(){
-		return this.secondaries[this.secondaries.Length-1].orbit.Apoapsis();
+	public double maxSMA{
+		get { return this.secondaries[this.secondaries.Length-1].orbit.apoapsis; }
 	}
-	public double MaxP(){
-		return this.secondaries[this.secondaries.Length-1].orbit.Period();
+	public double maxP{
+		get { return this.secondaries[this.secondaries.Length-1].orbit.period; }
 	}
 	public Bitmap Map(double time, ushort size){
 		byte orbitResolution = 64;
@@ -269,12 +269,12 @@ public class StarSystem : IEnumerable
 		// compute orbits!
 		ushort[,,] pointList = new ushort[this.secondaries.Length, orbitResolution, 2]; // pointlist[planet][time][x/y]
 		for (byte i=0; i < this.secondaries.Length; i++){
-			double period = this.secondaries[i].orbit.Period();
+			double period = this.secondaries[i].orbit.period;
 			for (byte j=0; j < orbitResolution; j++){
 				double[] absCoords = this.secondaries[i].orbit.Cartesian(period * j / orbitResolution);
 				double absx = absCoords[0];
 				double absy = absCoords[1];
-				double a = this.MaxSMA();
+				double a = this.maxSMA;
 				pointList[i, j, 0] = (ushort)Constants.Remap(absx, new double[] {-a, a}, new double[] {0, size});
 				pointList[i, j, 1] = (ushort)Constants.Remap(absy, new double[] {-a, a}, new double[] {0, size});
 			}
@@ -299,7 +299,7 @@ public class StarSystem : IEnumerable
 			double[] absCoords = p.orbit.Cartesian(time);
 			double absx = absCoords[0];
 			double absy = absCoords[1];
-			double a = this.MaxSMA();
+			double a = this.maxSMA;
 			ushort x = (ushort)Constants.Remap(absx, new double[] {-a, a}, new double[] {0, size});
 			ushort y = (ushort)Constants.Remap(absy, new double[] {-a, a}, new double[] {0, size});
 			// bitmap.SetPixel(x, y, planetColor);
@@ -381,6 +381,6 @@ public class Interface : Form
 	}
 	private void Tick(object sender, EventArgs e){
 		systemMap.Image = Program.system.Map(time, 350);
-		time += (ulong)(Program.system.MaxP()/(60*fps)); // fixme
+		time += (ulong)(Program.system.maxP/(60*fps)); // fixme
 	}
 }
