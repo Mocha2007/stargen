@@ -7,7 +7,7 @@ using System.Windows.Forms;
 // for enumeration
 using System.Collections;
 
-public class Program
+static class Program
 {
 	static Random rnd = new Random();
 	public static StarSystem system = RandSystem();
@@ -308,15 +308,15 @@ public class StarSystem : IEnumerable
 		return bitmap;
 	}
 }
-public class Interface : Form
+class Interface : Form
 {
 	ulong time = 0;
-	public static byte fps = 30;
-	public Button button1, planetButton, printButton;
-	public Label planetSelectorLabel;
-	public NumericUpDown planetSelector;
-	public static PictureBox systemMap;
-	public TableLayoutPanel interfaceTable, overTable;
+	static byte fps = 30;
+	static Button button1, planetButton, printButton;
+	static Label planetSelectorLabel;
+	static NumericUpDown planetSelector;
+	static PictureBox systemMap;
+	static TableLayoutPanel interfaceTable, overTable;
 	public Interface(){
 		this.Size = new Size(375, 505); // width, height
 		this.Text = "Mocha's Stargen";
