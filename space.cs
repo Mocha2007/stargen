@@ -179,7 +179,14 @@ public class Orbit
 		double E = this.EccentricAnomaly(time);
 		double nu = this.TrueAnomaly(time);
 		double r_c = this.sma * (1 - this.ecc * Math.Cos(E));
-		return new double[] {r_c * Math.Cos(nu), r_c * Math.Sin(nu)};
+		double[] o = new double[] {r_c * Math.Cos(nu), r_c * Math.Sin(nu)};
+		double c = Math.Cos(this.aop);
+		double s = Math.Sin(this.aop);
+		double[] r = new double[] {
+			o[0]*c - o[1]*s,
+			o[0]*s + o[1]*c,
+		};
+		return r;
 	}
 	public double EccentricAnomaly(double time){ // confirmed to work 100%
 		float tol = 1e-10F;
