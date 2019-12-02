@@ -239,6 +239,9 @@ public class StarSystem
 	public double MaxSMA(){
 		return this.secondaries[this.secondaries.Length-1].orbit.Apoapsis();
 	}
+	public double MaxP(){
+		return this.secondaries[this.secondaries.Length-1].orbit.Period();
+	}
 	public Bitmap Map(double time, ushort size){
 		byte orbitResolution = 64;
 		Bitmap bitmap = new Bitmap(size, size);
@@ -294,6 +297,7 @@ public class StarSystem
 public class Interface : Form
 {
 	ulong time = 0;
+	public static byte fps = 30;
 	public Button button1, planetButton, printButton;
 	public Label planetSelectorLabel;
 	public NumericUpDown planetSelector;
@@ -345,7 +349,6 @@ public class Interface : Form
 		overTable.Controls.Add(systemMap, 0, 1);
 		// main simulation
 		// https://stackoverflow.com/a/23137100/2579798
-		byte fps = 30;
 		Timer timer = new Timer();
 		timer.Interval = 1000 / fps;
 		timer.Tick += new EventHandler(Tick);
@@ -364,6 +367,6 @@ public class Interface : Form
 	}
 	private void Tick(object sender, EventArgs e){
 		systemMap.Image = Program.system.Map(time, 350);
-		time += 10000;
+		time += (ulong)(Program.system.MaxP()/(60*fps)); // fixme
 	}
 }
