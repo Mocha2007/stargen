@@ -32,7 +32,7 @@ static class Program
 		return Math.Exp(Uniform(Math.Log(minimum), Math.Log(maximum)));
 	}
 	// random astro - todo
-	static StarSystem RandSystem(){
+	public static StarSystem RandSystem(){
 		Star primary = RandStar();
 		byte planet_n = (byte)rnd.Next(7, 10);
 		Planet[] secondaries = new Planet[planet_n];
@@ -314,7 +314,7 @@ class Interface : Form
 {
 	ulong time = 0;
 	static byte fps = 30;
-	static Button button1, planetButton, printButton;
+	static Button button1, planetButton, printButton, regenButton;
 	static Label planetSelectorLabel;
 	static NumericUpDown planetSelector;
 	static PictureBox systemMap;
@@ -333,11 +333,6 @@ class Interface : Form
 		interfaceTable.Dock = DockStyle.Fill;
 		interfaceTable.CellBorderStyle = TableLayoutPanelCellBorderStyle.Single;
 		overTable.Controls.Add(interfaceTable, 0, 0);
-		// star button
-		button1 = new Button();
-		button1.Text = "View Star";
-		button1.Click += new EventHandler(button1_Click);
-		interfaceTable.Controls.Add(button1, 0, 1);
 		// planet selector label
 		planetSelectorLabel = new Label();
 		planetSelectorLabel.Text = "Planet ID:";
@@ -352,6 +347,17 @@ class Interface : Form
 		planetButton.Text = "View Planet";
 		planetButton.Click += new EventHandler(planetButtonClick);
 		interfaceTable.Controls.Add(planetButton, 2, 0);
+		// star button
+		button1 = new Button();
+		button1.Text = "View Star";
+		button1.Click += new EventHandler(button1_Click);
+		interfaceTable.Controls.Add(button1, 0, 1);
+		// regen system button
+		regenButton = new Button();
+		regenButton.Text = "New System";
+		regenButton.Width = 100;
+		regenButton.Click += new EventHandler(regenButton_Click);
+		interfaceTable.Controls.Add(regenButton, 1, 1);
 		// print button
 		printButton = new Button();
 		printButton.Text = "Export System";
@@ -381,6 +387,9 @@ class Interface : Form
 	private void printButtonClick(object sender, EventArgs e){
 		Program.system.Map(0, 1200).Save(@"export.png", System.Drawing.Imaging.ImageFormat.Png);
 		File.WriteAllText("export.txt", Program.system.ToString());
+	}
+	private void regenButton_Click(object sender, EventArgs e){
+		Program.system = Program.RandSystem();
 	}
 	private void Tick(object sender, EventArgs e){
 		systemMap.Image = Program.system.Map(time, 350);
