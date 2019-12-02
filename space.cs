@@ -390,6 +390,9 @@ class Interface : Form
 	}
 	private void regenButton_Click(object sender, EventArgs e){
 		Program.system = Program.RandSystem();
+		// reset planet selector
+		planetSelector.Maximum = Program.system.secondaries.Length - 1;
+		planetSelector.Value = 0;
 	}
 	private void Tick(object sender, EventArgs e){
 		systemMap.Image = Program.system.Map(time, 350);
