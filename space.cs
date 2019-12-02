@@ -320,7 +320,7 @@ class Interface : Form
 	static PictureBox systemMap;
 	static TableLayoutPanel interfaceTable, overTable;
 	public Interface(){
-		this.Size = new Size(375, 505); // width, height
+		this.Size = new Size(375, 525); // width, height
 		this.Text = "Mocha's Stargen";
 		this.AutoSize = true;
 		// overtable
@@ -364,6 +364,8 @@ class Interface : Form
 		printButton.Width = 100;
 		printButton.Click += new EventHandler(printButtonClick);
 		interfaceTable.Controls.Add(printButton, 2, 1);
+		// toolbar
+		Toolbar();
 		// map
 		systemMap = new PictureBox();
 		systemMap.Image = Program.system.Map(0, 350);
@@ -398,6 +400,24 @@ class Interface : Form
 		systemMap.Image = Program.system.Map(time, 350);
 		time += (ulong)(Program.system.maxP/(60*fps)); // fixme
 	}
+	#region Implementation of Toolbar
+	// https://www.c-sharpcorner.com/UploadFile/mahesh/menustrip-in-C-Sharp/
+	private void Toolbar(){
+		MenuStrip MainMenu = new MenuStrip();
+		this.MainMenuStrip = MainMenu;
+		this.Controls.Add(MainMenu);
+		// Create a Menu Item  
+		ToolStripMenuItem FileMenu = new ToolStripMenuItem("File");
+		FileMenu.Text = "File Menu";
+		FileMenu.TextAlign = ContentAlignment.BottomRight;
+		FileMenu.ToolTipText = "Click Me";
+		MainMenu.Items.Add(FileMenu);
+		FileMenu.Click += new System.EventHandler(this.FileMenuItemClick);
+	}
+	private void FileMenuItemClick(object sender, EventArgs e){
+		MessageBox.Show("File menu item clicked");  
+	}
+	#endregion
 }
 class PlanetInfo : Form
 {
