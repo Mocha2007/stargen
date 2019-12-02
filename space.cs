@@ -10,7 +10,7 @@ using System.Collections;
 static class Program
 {
 	static Random rnd = new Random();
-	public static StarSystem system = RandSystem();
+	public static StarSystem system = Constants.solarSystem; // RandSystem();
 	static void Main(string[] args)
 	{
 		Console.CursorVisible = false;
@@ -88,6 +88,7 @@ public class Constants
 	public static Planet earth = new Planet(5.97237e24, 6.371e6, 0.306, earthOrbit);
 	static Orbit jupiterOrbit = new Orbit(sun, 4.77988, 0.0489, 0.34941, 5.2044 * au);
 	public static Planet jupiter = new Planet(1.8982e27, 6.9911e7, 0.503, jupiterOrbit);
+	public static StarSystem solarSystem = new StarSystem(sun, new Planet[] {mercury, earth, jupiter});
 	public static double Remap(double value, double[] from, double[] to){
 		double from_min = from[0];
 		double from_max = from[1];
