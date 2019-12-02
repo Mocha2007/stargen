@@ -51,11 +51,9 @@ static class Program
 		return new Star(Constants.sun.mass * mass, radius, Constants.sun.luminosity * luminosity, temperature);
 	}
 	static Planet RandPlanet(Star primary, double sma){
-		double mass, albedo, density;
+		double albedo, density, ecc, mass;
 		double aop = RandAngle();
-		double ecc = Uniform(0, 0.21);
 		double man = RandAngle();
-		Orbit orbit = new Orbit(primary, aop, ecc, man, sma);
 		if (primary.frostLine < sma){ //giant
 			mass = LogUniform(10*Constants.earth.mass, 10*Constants.jupiter.mass);
 			if (2e26 < mass){ // gas giant
@@ -66,12 +64,15 @@ static class Program
 				density = Uniform(1200, 1700);
 				albedo = Uniform(0.29, 0.3);
 			}
+			ecc = Uniform(0, 0.06);
 		}
 		else{ // rocky
 			mass = LogUniform(Constants.mercury.mass / 20, 10*Constants.earth.mass);
 			density = Uniform(3900, 5600);
 			albedo = Uniform(0.09, 0.76);
+			ecc = Uniform(0, 0.21);
 		}
+		Orbit orbit = new Orbit(primary, aop, ecc, man, sma);
 		double radius = Math.Pow(mass/density * 3/4 / Math.PI, (double)1/3);
 		return new Planet(mass, radius, albedo, orbit);
 	}
