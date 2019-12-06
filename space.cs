@@ -394,7 +394,7 @@ class Interface : Form
 		new PlanetInfo(Program.system.secondaries[pid]).Show();
 	}
 	private void printButtonClick(object sender, EventArgs e){
-		Program.system.Map(0, 1200).Save(@"export.png", System.Drawing.Imaging.ImageFormat.Png);
+		Program.system.Map(0, 2048).Save(@"export.png", System.Drawing.Imaging.ImageFormat.Png);
 		File.WriteAllText("export.txt", Program.system.ToString());
 	}
 	private void regenButton_Click(object sender, EventArgs e){
