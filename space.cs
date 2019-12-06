@@ -321,6 +321,7 @@ public class StarSystem : IEnumerable
 }
 class Interface : Form
 {
+	ushort size = 500;
 	ulong time = 0;
 	static byte fps = 30;
 	static Button button1, planetButton, printButton, regenButton;
@@ -329,7 +330,7 @@ class Interface : Form
 	static PictureBox systemMap;
 	static TableLayoutPanel interfaceTable, overTable;
 	public Interface(){
-		this.Size = new Size(375, 505); // width, height
+		this.Size = new Size(size+25, size+155); // width, height
 		this.Text = "Mocha's Stargen";
 		this.AutoSize = true;
 		// overtable
@@ -375,8 +376,7 @@ class Interface : Form
 		interfaceTable.Controls.Add(printButton, 2, 1);
 		// map
 		systemMap = new PictureBox();
-		systemMap.Image = Program.system.Map(0, 350);
-		systemMap.Size = new Size(350, 350);
+		systemMap.Size = new Size(size, size);
 		overTable.Controls.Add(systemMap, 0, 1);
 		// main simulation
 		// https://stackoverflow.com/a/23137100/2579798
@@ -404,7 +404,7 @@ class Interface : Form
 		planetSelector.Value = 0;
 	}
 	private void Tick(object sender, EventArgs e){
-		systemMap.Image = Program.system.Map(time, 350);
+		systemMap.Image = Program.system.Map(time, size);
 		time += (ulong)(Program.system.maxP/(60*fps)); // fixme
 	}
 }
