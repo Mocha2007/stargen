@@ -267,7 +267,7 @@ public class StarSystem : IEnumerable
 	public double maxP{
 		get { return this.secondaries[this.secondaries.Length-1].orbit.period; }
 	}
-	public Bitmap Map(double time, ushort size){
+	public Bitmap Map(double time, ushort size, byte pointsize){
 		byte orbitResolution = 64;
 		Bitmap bitmap = new Bitmap(size, size);
 		Graphics g = Graphics.FromImage(bitmap);
@@ -276,7 +276,7 @@ public class StarSystem : IEnumerable
 		Color starColor = Color.Yellow; // new Color(255, 255, 255, 0); // ARGB
 		Brush starBrush = new SolidBrush(starColor);
 		// bitmap.SetPixel(size/2, size/2, starColor);
-		g.FillEllipse(starBrush, size/2-3, size/2-3, 5, 5);
+		g.FillEllipse(starBrush, size/2-pointsize, size/2-pointsize, pointsize*2, pointsize*2);
 		// compute orbits!
 		ushort[,,] pointList = new ushort[this.secondaries.Length, orbitResolution, 2]; // pointlist[planet][time][x/y]
 		for (byte i=0; i < this.secondaries.Length; i++){
@@ -314,7 +314,7 @@ public class StarSystem : IEnumerable
 			ushort x = (ushort)Constants.Remap(absx, new double[] {-a, a}, new double[] {0, size});
 			ushort y = (ushort)Constants.Remap(absy, new double[] {-a, a}, new double[] {0, size});
 			// bitmap.SetPixel(x, y, planetColor);
-			g.FillEllipse(planetBrush, x-2, y-2, 3, 3);
+			g.FillEllipse(planetBrush, x-pointsize/2, y-pointsize/2, pointsize, pointsize);
 		}
 		return bitmap;
 	}
@@ -377,7 +377,7 @@ class Interface : Form
 		// map
 		systemMap = new PictureBox();
 		systemMap.Size = new Size(size, size);
-		overTable.Controls.Add(systemMap, 0, 1);
+		overTable.Controls.Add(systemMap, 0, 3);
 		// main simulation
 		// https://stackoverflow.com/a/23137100/2579798
 		Timer timer = new Timer();
@@ -394,7 +394,7 @@ class Interface : Form
 		new PlanetInfo(Program.system.secondaries[pid]).Show();
 	}
 	private void printButtonClick(object sender, EventArgs e){
-		Program.system.Map(0, 2048).Save(@"export.png", System.Drawing.Imaging.ImageFormat.Png);
+		Program.system.Map(0, 4096, 5).Save(@"export.png", System.Drawing.Imaging.ImageFormat.Png);
 		File.WriteAllText("export.txt", Program.system.ToString());
 	}
 	private void regenButton_Click(object sender, EventArgs e){
@@ -404,7 +404,7 @@ class Interface : Form
 		planetSelector.Value = 0;
 	}
 	private void Tick(object sender, EventArgs e){
-		systemMap.Image = Program.system.Map(time, size);
+		systemMap.Image = Program.system.Map(time, size, 3);
 		time += (ulong)(Program.system.maxP/(60*fps)); // fixme
 	}
 }
